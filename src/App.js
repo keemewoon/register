@@ -14,7 +14,28 @@ function App(){
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
-  
+
+
+  const isEmail = (value) => {
+    const email = value || "";
+    const [localPart, domain, ...etc] = email.split("@");
+    
+    if (!localPart || !domain || etc.length) {
+        return false;
+    } else if (email.includes(" ")) {
+        return false;
+    } else if (email[0] === "-") {
+        return false;
+    } else if (!/^[a-z0-9+_-]+$/gi.test(localPart)) {
+        return false;
+    } else if (!/^[a-z0-9.-]+$/gi.test(domain)) {
+        return false;
+    }
+    return true;
+  }
+
+
+
   // validation check
   const handleSubmit = (e) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -25,21 +46,22 @@ function App(){
     //이메일
     if (!emailRegex.test(email)) {
       e.preventDefault(); // 유효성 검사가 실패하면 폼 제출을 막는다.
-      alert("이메일 형식이 올바르지 않습니다.");
-      return;
+      //alert("이메일 형식이 올바르지 않습니다.");
+      return false;
     }
     if(email.indexOf(" ") == 0){
       e.preventDefault(); 
-      alert("이메일에 공백이 포함되어 있습니다.");
-      return;
+      //alert("이메일에 공백이 포함되어 있습니다.");
+      return false;
     }
     //비밀번호
     if (specialCharsCount < 2) {
       e.preventDefault(); 
-      alert("비밀번호에 특수문자는 2개 이상 포함되어야 합니다.");
-      return;
+      //alert("비밀번호에 특수문자는 2개 이상 포함되어야 합니다.");
+      return false;
     }
-    alert(`가입완료! \n[아이디]${email} \n[비밀번호]${password}`);
+    //alert(`가입완료! \n[아이디]${email} \n[비밀번호]${password}`);
+    return true;
   
   };
 

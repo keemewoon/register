@@ -1,30 +1,57 @@
-const { handleSubmit } = require('./App');
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import App from './App';
 
-test('입력한 이메일 주소에는 @ 문자가 1개만 있어야 이메일 형식이다.', () => {
-    expect(handleSubmit("my-email@domain.com")).toEqual(true);
-    expect(handleSubmit("my-email@@@domain.com")).toEqual(false);
-})
-test('입력한 이메일 주소에 공백(스페이스)가 있으면 이메일 형식이 아니다.', () => {
-    expect(handleSubmit("my-email@domain.com")).toEqual(true);
-    expect(handleSubmit("my-ema il@domain.com")).toEqual(false);
-})
-test('입력한 이메일 주소 맨 앞에 하이픈(-)가 있으면 이메일 형식이 아니다.', () => {
-    expect(handleSubmit("my-e-mail@domain.com")).toEqual(true);
-    expect(handleSubmit("-my-email@domain.com")).toEqual(false);
-})
+test('이메일 형식 검증', () => {
+  render(<App />);
+  const emailInput = screen.getByPlaceholderText('이메일');
+  const submitButton = screen.getByText('가입하기');
 
-// describe('App component', () => {
-//   test('renders without crashing', () => {
-//     render(<App />);
-//   });
-// });
+  // 올바른 이메일 형식 입력
+  fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+  fireEvent.click(submitButton);
+  expect(screen.queryByText('이메일 형식이 올바르지 않습니다.')).not.toBeInTheDocument();
 
-// test('이메일 검증', () => {
-//   render(<App />);
-//   const emailInput = screen.getByPlaceholderText('이메일');
+  // 이메일에 공백 포함
+  fireEvent.change(emailInput, { target: { value: ' test@example.com' } });
+  fireEvent.click(submitButton);
+  expect(screen.getByText('이메일 형식이 올바르지 않습니다.')).toBeInTheDocument();
+});
 
-//   fireEvent.change(emailInput, { target: { value: 'invalid_email' } });
-//   fireEvent.submit(emailInput);
+test('비밀번호 특수문자 검증', () => {
+  render(<App />);
+  const passwordInput = screen.getByPlaceholderText('비밀번호');
+  const passwordConfirmInput = screen.getByPlaceholderText('비밀번호 확인');
+  const submitButton = screen.getByText('가입하기');
 
-//   expect(screen.getByText('이메일 형식이 올바르지 않습니다.')).toBeInTheDocument();
-// });
+  // 올바른 비밀번호 입력 (특수문자 2개 이상 포함)
+  fireEvent.change(passwordInput, { target: { value: 'test@123' } });
+  fireEvent.change(passwordConfirmInput, { target: { value: 'test@123' } });
+  fireEvent.click(submitButton);
+  expect(screen.queryByText('비밀번호에 특수문자는 2개 이상 포함되어야 합니다.')).not.toBeInTheDocument();
+
+  // 특수문자 2개 미만인 비밀번호 입력
+  fireEvent.change(passwordInput, { target: { value: 'test123' } });
+  fireEvent.change(passwordConfirmInput, { target: { value: 'test123' } });
+  fireEvent.click(submitButton);
+  expect(screen.getByText('비밀번호에 특수문자는 2개 이상 포함되어야 합니다.')).toBeInTheDocument();
+});
+
+test('비밀번호 일치 검증', () => {
+  render(<App />);
+  const passwordInput = screen.getByPlaceholderText('비밀번호');
+  const passwordConfirmInput = screen.getByPlaceholderText('비밀번호 확인');
+  const submitButton = screen.getByText('가입하기');
+
+  // 올바른 비밀번호 입력 (일치)
+  fireEvent.change(passwordInput, { target: { value: 'test@123' } });
+  fireEvent.change(passwordConfirmInput, { target: { value: 'test@123' } });
+  fireEvent.click(submitButton);
+  expect(screen.queryByText('비밀번호가 일치하지 않습니다.')).not.toBeInTheDocument();
+
+  // 비밀번호와 비밀번호 확인이 다른 경우
+  fireEvent.change(passwordInput, { target: { value: 'test@123' } });
+  fireEvent.change(passwordConfirmInput, { target: { value: 'test@456' } });
+  fireEvent.click(submitButton);
+  expect(screen.getByText('비밀번호가 일치하지 않습니다.')).toBeInTheDocument();
+});
