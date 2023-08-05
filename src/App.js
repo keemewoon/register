@@ -20,6 +20,8 @@ function App(){
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const specialCharsCount = (password.match(/[^a-zA-Z0-9]/g) || []).length;
 
+
+
     //이메일
     if (!emailRegex.test(email)) {
       e.preventDefault(); // 유효성 검사가 실패하면 폼 제출을 막는다.
@@ -37,9 +39,15 @@ function App(){
       alert("비밀번호에 특수문자는 2개 이상 포함되어야 합니다.");
       return;
     }
-    e.preventDefault();
     alert(`가입완료! \n[아이디]${email} \n[비밀번호]${password}`);
   
+  };
+
+  //엔터키 이벤트
+  const keypressEvent = (e) => {
+    if(e.key === "Enter" ) {
+      handleSubmit(e);
+    }
   };
 
   return (
@@ -68,6 +76,7 @@ function App(){
             value={passwordConfirm}
             placeholder="비밀번호 확인"
             onChange={(e) => setPasswordConfirm(e.target.value)}
+            onKeyUp={keypressEvent}
             className={password !== passwordConfirm && passwordConfirm.length !== 0 ? "not-equals" : ""} //패스워드가 일치하지 않을때 css적용
           /><br/>
           <input type="submit" value="가입하기"/>
